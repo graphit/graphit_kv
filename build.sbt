@@ -6,10 +6,19 @@ scalaVersion := "2.10.0"
 
 resolvers += "Typesafe Snapshots" at "http://repo.typesafe.com/typesafe/snapshots/"
 
+libraryDependencies ++= {
+  val akkaVersion = "2.2-SNAPSHOT"
+  Seq(
+    "com.typesafe.akka" %% "akka-actor" % akkaVersion,
+    "com.typesafe.akka" %% "akka-cluster-experimental" % akkaVersion,
+    "com.typesafe.akka" %% "akka-contrib" % akkaVersion
+  )
+}
 
-libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.2-SNAPSHOT"
 
-libraryDependencies += "com.typesafe.akka" %% "akka-cluster-experimental" % "2.2-SNAPSHOT"
+
+
+
 
 
 
