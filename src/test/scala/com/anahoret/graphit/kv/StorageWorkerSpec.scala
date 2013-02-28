@@ -27,5 +27,15 @@ class StorageWorkerSpec(_system: ActorSystem) extends TestKit(_system) with Impl
 
       result must equal (Result("unknown-key", None))
     }
+
+    "return a value for a passed key" in {
+      val worker = system.actorOf(Props[StorageWorker])
+
+      implicit val timeout = Timeout(5 seconds)
+      val future = worker ? Get("already-stored-key")
+      val result = Await.result(future, timeout.duration).asInstanceOf[Result]
+
+      result must equal (Result("already-stored-key", Some("already-stored-value")))
+    }
   }
 }
