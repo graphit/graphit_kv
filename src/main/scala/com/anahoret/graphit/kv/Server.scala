@@ -15,7 +15,6 @@ import akka.actor.RootActorPath
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent._
 import akka.routing.ConsistentHashingRouter.ConsistentHashableEnvelope
-import akka.remote.testconductor.TestConductorProtocol.Address
 
 import java.util.concurrent.TimeUnit
 
@@ -30,22 +29,6 @@ class StorageService extends Actor {
   def receive = {
     case Get(key) ⇒ workerRouter.tell(ConsistentHashableEnvelope(key, key), self)
     case result: Result  ⇒  sender ! result
-  }
-}
-
-class StorageWorker extends Actor {
-  val storage = scala.collection.mutable.Map("already-stored-key" -> "already-stored-value")
-
-  def receive = {
-    case Get(key) ⇒ sender ! lookup(key)
-  }
-
-  private def lookup(key: String): Result = {
-    try {
-      Result(key, Some(storage(key)))
-    } catch {
-      case e: java.util.NoSuchElementException => Result(key, None)
-    }
   }
 }
 
