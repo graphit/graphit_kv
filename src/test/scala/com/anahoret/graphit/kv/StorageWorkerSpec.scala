@@ -16,7 +16,7 @@ class StorageWorkerSpec(_system: ActorSystem) extends TestKit(_system) with Impl
     "answer with the same key" in {
       val worker = system.actorOf(Props[StorageWorker])
       worker ! Get("blah")
-      expectMsg(Result("blah", "blah"))
+      expectMsg(Result("blah", Some("blah")))
     }
   }
 }

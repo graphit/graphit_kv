@@ -20,7 +20,7 @@ import akka.remote.testconductor.TestConductorProtocol.Address
 import java.util.concurrent.TimeUnit
 
 case class Get(key: String)
-case class Result(key: String, value: String)
+case class Result(key: String, value: Option[String])
 case class RequestFailed(reason: String)
 
 class StorageService extends Actor {
@@ -37,7 +37,7 @@ class StorageWorker extends Actor {
   //var cache = Map.empty[String, String]
 
   def receive = {
-    case Get(key) ⇒ sender ! Result(key, key)
+    case Get(key) ⇒ sender ! Result(key, Some(key))
   }
 }
 
