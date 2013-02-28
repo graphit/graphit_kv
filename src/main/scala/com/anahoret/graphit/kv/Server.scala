@@ -34,11 +34,11 @@ class StorageService extends Actor {
 }
 
 class StorageWorker extends Actor {
-  //var cache = Map.empty[String, String]
-
   def receive = {
-    case Get(key) ⇒ sender ! Result(key, Some(key))
+    case Get(key) ⇒ sender ! lookup(key)
   }
+
+  private def lookup(key: String): Result = Result(key, None)
 }
 
 class ServiceFacade extends Actor with ActorLogging {
