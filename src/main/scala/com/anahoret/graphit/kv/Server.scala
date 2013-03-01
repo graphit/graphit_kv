@@ -16,6 +16,7 @@ import akka.cluster.Cluster
 import akka.cluster.ClusterEvent._
 import akka.routing.ConsistentHashingRouter.ConsistentHashableEnvelope
 
+import scala.concurrent.duration._
 
 case class Get(key: String)
 case class Put(key: String, value: String)
@@ -24,7 +25,7 @@ case class RequestFailed(reason: String)
 
 class StorageService extends Actor {
   val workerRouter =
-    context.actorOf(Props(new StorageWorker).withRouter(FromConfig), name = "storageWorkerRouter")
+    context.actorOf(Props[StorageWorker].withRouter(FromConfig), name = "storageWorkerRouter")
 
   def receive = {
     case Get(key) => workerRouter.tell(ConsistentHashableEnvelope(key, key), self)
@@ -45,7 +46,7 @@ class ServiceFacade extends Actor with ActorLogging {
     case _: Get if currentMaster.isEmpty =>
       sender ! RequestFailed("Service unavailable, try again later")
     case request: Get =>
-      implicit val timeout = Timeout(5, TimeUnit.SECONDS)
+      implicit val timeout = Timeout(5 seconds)
       currentMaster foreach { address =>
         val service = context.actorFor(RootActorPath(address) / "user" / "singleton" / "storageService")
         service ? request recover {
