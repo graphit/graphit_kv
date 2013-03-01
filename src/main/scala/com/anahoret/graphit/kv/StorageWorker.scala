@@ -10,13 +10,7 @@ class StorageWorker(storage: mutable.Map[String, String] = mutable.Map.empty[Str
     case Put(key, value) => store(key, value)
   }
 
-  private def lookup(key: String): Result = {
-    try {
-      Result(key, Some(storage(key)))
-    } catch {
-      case e: java.util.NoSuchElementException => Result(key, None)
-    }
-  }
+  private def lookup(key: String): Result = Result(key, storage.get(key))
 
   private def store(key: String, value: String): Unit = storage(key) = value
 }
