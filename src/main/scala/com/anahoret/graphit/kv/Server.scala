@@ -16,7 +16,6 @@ import akka.cluster.Cluster
 import akka.cluster.ClusterEvent._
 import akka.routing.ConsistentHashingRouter.ConsistentHashableEnvelope
 
-import java.util.concurrent.TimeUnit
 
 case class Get(key: String)
 case class Put(key: String, value: String)
@@ -28,8 +27,8 @@ class StorageService extends Actor {
     context.actorOf(Props(new StorageWorker).withRouter(FromConfig), name = "storageWorkerRouter")
 
   def receive = {
-    case Get(key) ⇒ workerRouter.tell(ConsistentHashableEnvelope(key, key), self)
-    case result: Result  ⇒  sender ! result
+    case Get(key) => workerRouter.tell(ConsistentHashableEnvelope(key, key), self)
+    case result: Result  =>  sender ! result
   }
 }
 
@@ -43,18 +42,18 @@ class ServiceFacade extends Actor with ActorLogging {
   override def postStop(): Unit = cluster.unsubscribe(self)
 
   def receive = {
-    case _: Get if currentMaster.isEmpty ⇒
+    case _: Get if currentMaster.isEmpty =>
       sender ! RequestFailed("Service unavailable, try again later")
-    case request: Get ⇒
+    case request: Get =>
       implicit val timeout = Timeout(5, TimeUnit.SECONDS)
-      currentMaster foreach { address ⇒
+      currentMaster foreach { address =>
         val service = context.actorFor(RootActorPath(address) / "user" / "singleton" / "storageService")
         service ? request recover {
-          case _ ⇒ RequestFailed("Service unavailable, try again later")
+          case _ => RequestFailed("Service unavailable, try again later")
         }
       }
-    case state: CurrentClusterState ⇒ currentMaster = state.leader
-    case LeaderChanged(leader)      ⇒ currentMaster = leader
+    case state: CurrentClusterState => currentMaster = state.leader
+    case LeaderChanged(leader)      => currentMaster = leader
   }
 }
 
@@ -77,7 +76,7 @@ object Server {
     """).withFallback(ConfigFactory.load()))
 
     system.actorOf(Props(new ClusterSingletonManager(
-      singletonProps = _ ⇒ Props[StorageService], singletonName = "storageService",
+      singletonProps = _ => Props[StorageService], singletonName = "storageService",
       terminationMessage = PoisonPill)), name = "singleton")
 
     system.actorOf(Props[ServiceFacade], name = "serviceFacade")
