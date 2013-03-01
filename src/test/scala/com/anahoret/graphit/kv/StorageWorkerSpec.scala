@@ -37,20 +37,25 @@ class StorageWorkerSpec(_system: ActorSystem) extends TestKit(_system) with Impl
     }
   }
 
-//  "Put" must {
-//    "store provided key-value pair" in {
-//      val worker = system.actorOf(Props(new StorageWorker))
-//
-//      val futureForNone = worker ? Get("key")
-//      val result = resultFor(futureForNone)
-//      result must equal (Result("key", None))
-//
-//      worker ! Put("key", "value")
-//
-//      val future = worker ? Get("key")
-//      val result = Await.result(future, timeout.duration).asInstanceOf[Result]
-//      result must equal (Result("key", Some("value")))
-//    }
-//  }
+  "Put" must {
+    "store provided key-value pair" in {
+      val worker = system.actorOf(Props(new StorageWorker))
+
+      val futureForNone = worker ? Get("key")
+      resultFor(futureForNone) must equal (Result("key", None))
+
+      worker ! Put("key", "value")
+
+      val future = worker ? Get("key")
+      resultFor(future) must equal (Result("key", Some("value")))
+    }
+
+    "update stored value" in {
+      val worker = system.actorOf(Props(new StorageWorker(mutable.Map("key" -> "value"))))
+      worker ! Put("key", "new value")
+      val future = worker ? Get("key")
+      resultFor(future) must equal (Result("key", Some("new value")))
+    }
+  }
 
 }

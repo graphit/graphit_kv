@@ -6,7 +6,8 @@ import akka.actor.Actor
 class StorageWorker(storage: mutable.Map[String, String] = mutable.Map.empty[String, String]) extends Actor {
 
   def receive = {
-    case Get(key) ⇒ sender ! lookup(key)
+    case Get(key) => sender ! lookup(key)
+    case Put(key, value) => store(key, value)
   }
 
   private def lookup(key: String): Result = {
@@ -16,4 +17,6 @@ class StorageWorker(storage: mutable.Map[String, String] = mutable.Map.empty[Str
       case e: java.util.NoSuchElementException => Result(key, None)
     }
   }
+
+  private def store(key: String, value: String): Unit = storage(key) = value
 }

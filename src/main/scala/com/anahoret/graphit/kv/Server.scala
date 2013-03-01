@@ -19,6 +19,7 @@ import akka.routing.ConsistentHashingRouter.ConsistentHashableEnvelope
 import java.util.concurrent.TimeUnit
 
 case class Get(key: String)
+case class Put(key: String, value: String)
 case class Result(key: String, value: Option[String])
 case class RequestFailed(reason: String)
 
