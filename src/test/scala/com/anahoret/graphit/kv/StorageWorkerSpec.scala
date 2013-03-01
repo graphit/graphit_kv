@@ -4,7 +4,7 @@ import org.scalatest.{BeforeAndAfterAll, WordSpec}
 import org.scalatest.matchers.MustMatchers
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.actor.{Props, ActorSystem}
-import scala.concurrent.Await
+import concurrent.{Future, Await}
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
@@ -15,27 +15,42 @@ class StorageWorkerSpec(_system: ActorSystem) extends TestKit(_system) with Impl
 
   def this() = this(ActorSystem("StorageWorkerSpec"))
 
+  implicit val timeout = Timeout(5 seconds)
+
   override def afterAll { system.shutdown() }
+
+  private def resultFor(future: Future[Any]): Result = {
+    Await.result(future, timeout.duration).asInstanceOf[Result]
+  }
 
   "Get" must {
     "return None if there is no such key" in {
       val worker = system.actorOf(Props(new StorageWorker))
-
-      implicit val timeout = Timeout(5 seconds)
       val future = worker ? Get("unknown-key")
-      val result = Await.result(future, timeout.duration).asInstanceOf[Result]
-
-      result must equal (Result("unknown-key", None))
+      resultFor(future) must equal (Result("unknown-key", None))
     }
 
     "return a value for a passed key" in {
       val worker = system.actorOf(Props(new StorageWorker(mutable.Map("already-stored-key" -> "already-stored-value"))))
-
-      implicit val timeout = Timeout(5 seconds)
       val future = worker ? Get("already-stored-key")
-      val result = Await.result(future, timeout.duration).asInstanceOf[Result]
-
-      result must equal (Result("already-stored-key", Some("already-stored-value")))
+      resultFor(future) must equal (Result("already-stored-key", Some("already-stored-value")))
     }
   }
+
+//  "Put" must {
+//    "store provided key-value pair" in {
+//      val worker = system.actorOf(Props(new StorageWorker))
+//
+//      val futureForNone = worker ? Get("key")
+//      val result = resultFor(futureForNone)
+//      result must equal (Result("key", None))
+//
+//      worker ! Put("key", "value")
+//
+//      val future = worker ? Get("key")
+//      val result = Await.result(future, timeout.duration).asInstanceOf[Result]
+//      result must equal (Result("key", Some("value")))
+//    }
+//  }
+
 }
