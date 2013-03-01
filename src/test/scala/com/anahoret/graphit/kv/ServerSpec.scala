@@ -1,10 +1,10 @@
 package com.anahoret.graphit.kv
 
 import org.scalatest.WordSpec
-import org.scalatest.matchers.MustMatchers
+import org.scalatest.matchers.ShouldMatchers
 
-class ServerSpec extends WordSpec with MustMatchers {
-  "A ServerSpec" must {
+class ServerSpec extends WordSpec with ShouldMatchers {
+  "A ServerSpec" should {
 
     "work" in {
       assert(true)

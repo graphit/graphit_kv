@@ -1,7 +1,7 @@
 package com.anahoret.graphit.kv
 
 import org.scalatest.{BeforeAndAfterAll, WordSpec}
-import org.scalatest.matchers.MustMatchers
+import org.scalatest.matchers.ShouldMatchers
 import akka.testkit.{ImplicitSender, TestKit}
 import akka.actor.{Props, ActorSystem}
 import concurrent.{Future, Await}
@@ -11,7 +11,7 @@ import scala.concurrent.duration._
 import scala.collection.mutable
 
 class StorageWorkerSpec(_system: ActorSystem) extends TestKit(_system) with ImplicitSender
-  with WordSpec with MustMatchers with BeforeAndAfterAll {
+  with WordSpec with ShouldMatchers with BeforeAndAfterAll {
 
   def this() = this(ActorSystem("StorageWorkerSpec"))
 
@@ -23,38 +23,38 @@ class StorageWorkerSpec(_system: ActorSystem) extends TestKit(_system) with Impl
     Await.result(future, timeout.duration).asInstanceOf[Result]
   }
 
-  "Get" must {
+  "Get" should {
     "return None if there is no such key" in {
       val worker = system.actorOf(Props(new StorageWorker))
       val future = worker ? Get("unknown-key")
-      resultFor(future) must equal (Result("unknown-key", None))
+      resultFor(future) should equal (Result("unknown-key", None))
     }
 
     "return a value for a passed key" in {
       val worker = system.actorOf(Props(new StorageWorker(mutable.Map("already-stored-key" -> "already-stored-value"))))
       val future = worker ? Get("already-stored-key")
-      resultFor(future) must equal (Result("already-stored-key", Some("already-stored-value")))
+      resultFor(future) should equal (Result("already-stored-key", Some("already-stored-value")))
     }
   }
 
-  "Put" must {
+  "Put" should {
     "store provided key-value pair" in {
       val worker = system.actorOf(Props(new StorageWorker))
 
       val futureForNone = worker ? Get("key")
-      resultFor(futureForNone) must equal (Result("key", None))
+      resultFor(futureForNone) should equal (Result("key", None))
 
       worker ! Put("key", "value")
 
       val future = worker ? Get("key")
-      resultFor(future) must equal (Result("key", Some("value")))
+      resultFor(future) should equal (Result("key", Some("value")))
     }
 
     "update stored value" in {
       val worker = system.actorOf(Props(new StorageWorker(mutable.Map("key" -> "value"))))
       worker ! Put("key", "new value")
       val future = worker ? Get("key")
-      resultFor(future) must equal (Result("key", Some("new value")))
+      resultFor(future) should equal (Result("key", Some("new value")))
     }
   }
 
