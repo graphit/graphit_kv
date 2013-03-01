@@ -6,13 +6,6 @@ import com.typesafe.config.ConfigFactory
 object MultiNodeSampleConfig extends MultiNodeConfig {
   val node1 = role("node1")
   val node2 = role("node2")
-
-  commonConfig(ConfigFactory.parseString("""
-    akka.actor.provider = "akka.cluster.ClusterActorRefProvider"
-    akka.remote.log-remote-lifecycle-events = off
-    akka.cluster.auto-join = off
-    akka.cluster.metrics.collector-class = akka.cluster.JmxMetricsCollector
-  """))
 }
 
 import akka.remote.testkit.MultiNodeSpec
@@ -22,7 +15,7 @@ import akka.actor.{Props, Actor}
 class MultiNodeSampleSpecMultiJvmNode1 extends MultiNodeSample
 class MultiNodeSampleSpecMultiJvmNode2 extends MultiNodeSample
 
-class MultiNodeSample extends MultiNodeSpec(MultiNodeSampleConfig)
+class MultiNodeSample extends MultiNodeSpec(DefaultConfig)
   with STMultiNodeSpec with ImplicitSender {
 
   import MultiNodeSampleConfig._
