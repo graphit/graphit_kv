@@ -1,13 +1,5 @@
 package com.anahoret.graphit.kv
 
-import akka.remote.testkit.MultiNodeConfig
-import com.typesafe.config.ConfigFactory
-
-object MultiNodeSampleConfig extends MultiNodeConfig {
-  val node1 = role("node1")
-  val node2 = role("node2")
-}
-
 import akka.remote.testkit.MultiNodeSpec
 import akka.testkit.ImplicitSender
 import akka.actor.{Props, Actor}
@@ -18,7 +10,7 @@ class MultiNodeSampleSpecMultiJvmNode2 extends MultiNodeSample
 class MultiNodeSample extends MultiNodeSpec(DefaultConfig)
   with STMultiNodeSpec with ImplicitSender {
 
-  import MultiNodeSampleConfig._
+  import DefaultConfig._
 
   def initialParticipants = roles.size
 
