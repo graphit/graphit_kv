@@ -2,13 +2,13 @@ package com.anahoret.graphit.kv
 
 import org.scalatest.{BeforeAndAfterAll, WordSpec}
 import org.scalatest.matchers.MustMatchers
-import akka.testkit.{ImplicitSender, TestKit, TestActorRef}
-import akka.actor.{Props, ActorSystem, Actor}
-import collection.immutable.HashMap
+import akka.testkit.{ImplicitSender, TestKit}
+import akka.actor.{Props, ActorSystem}
 import scala.concurrent.Await
 import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
+import scala.collection.mutable
 
 class StorageWorkerSpec(_system: ActorSystem) extends TestKit(_system) with ImplicitSender
   with WordSpec with MustMatchers with BeforeAndAfterAll {
@@ -19,7 +19,7 @@ class StorageWorkerSpec(_system: ActorSystem) extends TestKit(_system) with Impl
 
   "Get" must {
     "return None if there is no such key" in {
-      val worker = system.actorOf(Props[StorageWorker])
+      val worker = system.actorOf(Props(new StorageWorker))
 
       implicit val timeout = Timeout(5 seconds)
       val future = worker ? Get("unknown-key")
@@ -29,7 +29,7 @@ class StorageWorkerSpec(_system: ActorSystem) extends TestKit(_system) with Impl
     }
 
     "return a value for a passed key" in {
-      val worker = system.actorOf(Props[StorageWorker])
+      val worker = system.actorOf(Props(new StorageWorker(mutable.Map("already-stored-key" -> "already-stored-value"))))
 
       implicit val timeout = Timeout(5 seconds)
       val future = worker ? Get("already-stored-key")

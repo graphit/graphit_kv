@@ -1,9 +1,9 @@
 package com.anahoret.graphit.kv
 
+import scala.collection.mutable
 import akka.actor.Actor
 
-class StorageWorker extends Actor {
-  val storage = scala.collection.mutable.Map("already-stored-key" -> "already-stored-value")
+class StorageWorker(storage: mutable.Map[String, String] = mutable.Map.empty[String, String]) extends Actor {
 
   def receive = {
     case Get(key) ⇒ sender ! lookup(key)

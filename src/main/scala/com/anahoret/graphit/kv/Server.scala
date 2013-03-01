@@ -24,7 +24,7 @@ case class RequestFailed(reason: String)
 
 class StorageService extends Actor {
   val workerRouter =
-    context.actorOf(Props[StorageWorker].withRouter(FromConfig), name = "storageWorkerRouter")
+    context.actorOf(Props(new StorageWorker).withRouter(FromConfig), name = "storageWorkerRouter")
 
   def receive = {
     case Get(key) ⇒ workerRouter.tell(ConsistentHashableEnvelope(key, key), self)
