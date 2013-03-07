@@ -7,6 +7,8 @@ import akka.cluster.ClusterEvent.{CurrentClusterState, MemberUp}
 import akka.cluster.{MemberStatus, Member, Cluster}
 import akka.cluster.ClusterEvent.CurrentClusterState
 import akka.cluster.ClusterEvent.MemberUp
+import akka.util.Timeout
+import scala.concurrent.duration._
 
 class ServerUpMultiJvmNode1 extends ServerUpSpec
 class ServerUpMultiJvmNode2 extends ServerUpSpec
@@ -44,6 +46,22 @@ class ServerUpSpec extends MultiNodeSpec(DefaultConfig) with STMultiNodeSpec wit
         Cluster(system).unsubscribe(testActor)
 
         testConductor.enter("all-up")
+      }
+
+      "put and get key-value pairs" in {
+        runOn(graphit1) {
+          val facade = system.actorFor("user/serviceFacade")
+
+          awaitCond{
+            facade ! Put("my-key", "my-value")
+            facade ! Get("my-key")
+            expectMsgPF(30 seconds) {
+              case Result("my-key", Some("my-value")) => true
+              case _ => false
+            }
+          }
+        }
+        testConductor.enter("done-test1")
       }
     }
 }
