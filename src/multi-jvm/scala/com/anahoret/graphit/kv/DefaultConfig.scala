@@ -9,8 +9,8 @@ object DefaultConfig extends MultiNodeConfig {
 
   commonConfig(ConfigFactory.parseString("""
     akka {
-      loglevel = DEBUG
-      stdout-loglevel = DEBUG
+      loglevel = ERROR
+      stdout-loglevel = ERROR
 
       actor {
         provider = "akka.cluster.ClusterActorRefProvider"
