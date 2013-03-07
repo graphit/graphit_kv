@@ -60,9 +60,14 @@ class ServiceFacade extends Actor with ActorLogging {
 
 object Server {
   def main(args: Array[String]): Unit = {
+    createActors(configureSystem(args))
+  }
+
+  def configureSystem(args: Array[String]): ActorSystem = {
     if (args.nonEmpty) System.setProperty("akka.remote.netty.tcp.port", args(0))
 
-    val system = ActorSystem("ClusterSystem", ConfigFactory.parseString("""
+    ActorSystem("GraphitKVCluster", ConfigFactory.parseString(
+      """
       akka.actor.deployment {
         /singleton/storageService/storageWorkerRouter {
             router = consistent-hashing
@@ -74,12 +79,22 @@ object Server {
             }
           }
       }
-    """).withFallback(ConfigFactory.load()))
+      """).withFallback(ConfigFactory.load(
+    )))
+  }
 
+  def createActors(system: ActorSystem) {
+    createClusterManager(system)
+    createServiceFacade(system)
+  }
+
+  def createServiceFacade(system: ActorSystem) {
+    system.actorOf(Props[ServiceFacade], name = "serviceFacade")
+  }
+
+  def createClusterManager(system: ActorSystem) {
     system.actorOf(Props(new ClusterSingletonManager(
       singletonProps = _ => Props[StorageService], singletonName = "storageService",
       terminationMessage = PoisonPill)), name = "singleton")
-
-    system.actorOf(Props[ServiceFacade], name = "serviceFacade")
   }
 }
