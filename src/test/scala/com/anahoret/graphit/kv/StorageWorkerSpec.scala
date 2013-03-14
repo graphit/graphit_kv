@@ -34,8 +34,7 @@ class StorageWorkerSpec(_system: ActorSystem) extends TestKit(_system) with Impl
     "return a value for a passed key" in {
       val worker = system.actorOf(Props(new StorageWorker(mutable.Map("known-key" -> "known-value"))))
       val future = worker ? Get("known-key")
-      val Success(result: Result) = future.value.get
-      result should be(Result("known-key", Some("known-value")))
+      resultFor(future) should equal (Result("known-key", Some("known-value")))
     }
   }
 
