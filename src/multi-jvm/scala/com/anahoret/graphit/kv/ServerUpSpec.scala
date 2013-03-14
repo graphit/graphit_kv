@@ -9,18 +9,23 @@ import akka.cluster.ClusterEvent.CurrentClusterState
 import akka.cluster.ClusterEvent.MemberUp
 import akka.util.Timeout
 import scala.concurrent.duration._
+import scala.concurrent.duration._
+import akka.pattern.ask
+import concurrent.Await
 
 class ServerUpMultiJvmNode1 extends ServerUpSpec
 class ServerUpMultiJvmNode2 extends ServerUpSpec
 
 class ServerUpSpec extends MultiNodeSpec(DefaultConfig) with STMultiNodeSpec with ImplicitSender {
 
-    import DefaultConfig._
+  import DefaultConfig._
 
-    def initialParticipants = roles.size
+  implicit val timeout = Timeout(10 seconds)
 
-    "Server" should {
-      "be up" in {
+  def initialParticipants = roles.size
+
+  "Server" should {
+    "be up" in {
         Cluster(system).subscribe(testActor, classOf[MemberUp])
         expectMsgClass(classOf[CurrentClusterState])
 
@@ -52,16 +57,14 @@ class ServerUpSpec extends MultiNodeSpec(DefaultConfig) with STMultiNodeSpec wit
         runOn(graphit1) {
           val facade = system.actorFor("user/serviceFacade")
 
-          awaitCond{
-            facade ! Put("my-key", "my-value")
-            facade ! Get("my-key")
-            expectMsgPF(30 seconds) {
-              case Result("my-key", Some("my-value")) => true
-              case _ => false
-            }
-          }
+          facade ! Put("my-key", "my-value")
+
+          val future = facade ? Get("my-key")
+          val result = Await.result(future, timeout.duration).asInstanceOf[Result]
+          result should be(Result("my-key", Some("my-value")))
         }
+
         testConductor.enter("done-test1")
       }
-    }
+  }
 }

@@ -43,8 +43,8 @@ class ServiceFacade extends Actor with ActorLogging {
   override def postStop(): Unit = cluster.unsubscribe(self)
 
   def receive = {
-    case Put => println("Received Put") //do nothing. Just a stub to satisfy acceptance tests.
-    case Get("my-key") => sender ! Result("my-key", Some("my-value")) // Just a stub to satisfy acceptance tests.
+    case put: Put => // Do nothing so far
+    case Get("my-key") => sender ! Result("my-key", Some("my-value"))
     case state: CurrentClusterState => currentMaster = state.leader
     case LeaderChanged(leader)      => currentMaster = leader
   }
