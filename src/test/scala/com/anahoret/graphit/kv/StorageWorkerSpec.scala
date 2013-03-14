@@ -9,6 +9,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import scala.concurrent.duration._
 import scala.collection.mutable
+import util.Success
 
 class StorageWorkerSpec(_system: ActorSystem) extends TestKit(_system) with ImplicitSender
   with WordSpec with ShouldMatchers with BeforeAndAfterAll {
@@ -31,9 +32,10 @@ class StorageWorkerSpec(_system: ActorSystem) extends TestKit(_system) with Impl
     }
 
     "return a value for a passed key" in {
-      val worker = system.actorOf(Props(new StorageWorker(mutable.Map("already-stored-key" -> "already-stored-value"))))
-      val future = worker ? Get("already-stored-key")
-      resultFor(future) should equal (Result("already-stored-key", Some("already-stored-value")))
+      val worker = system.actorOf(Props(new StorageWorker(mutable.Map("known-key" -> "known-value"))))
+      val future = worker ? Get("known-key")
+      val Success(result: Result) = future.value.get
+      result should be(Result("known-key", Some("known-value")))
     }
   }
 
