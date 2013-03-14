@@ -3,13 +3,10 @@ package com.anahoret.graphit.kv
 import com.typesafe.config.ConfigFactory
 import akka.actor.Actor
 import akka.actor.Props
-import akka.actor.ActorLogging
 import akka.actor.ActorSystem
 import akka.actor.PoisonPill
 import akka.contrib.pattern.ClusterSingletonManager
 import akka.routing.FromConfig
-import akka.cluster.Cluster
-import akka.cluster.ClusterEvent._
 import akka.routing.ConsistentHashingRouter.ConsistentHashableEnvelope
 
 case class Get(key: String)
@@ -24,22 +21,6 @@ class StorageService extends Actor {
   def receive = {
     case Get(key) => workerRouter.tell(ConsistentHashableEnvelope(key, key), self)
     case result: Result  =>  sender ! result
-  }
-}
-
-class ServiceFacade extends Actor with ActorLogging {
-  val cluster = Cluster(context.system)
-
-  var currentMaster: Option[akka.actor.Address] = None
-
-  override def preStart(): Unit = cluster.subscribe(self, classOf[LeaderChanged])
-  override def postStop(): Unit = cluster.unsubscribe(self)
-
-  def receive = {
-    case put: Put => // Do nothing so far
-    case Get("my-key") => sender ! Result("my-key", Some("my-value"))
-    case state: CurrentClusterState => currentMaster = state.leader
-    case LeaderChanged(leader)      => currentMaster = leader
   }
 }
 
