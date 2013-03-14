@@ -6,17 +6,11 @@ import akka.actor.Props
 import akka.actor.ActorLogging
 import akka.actor.ActorSystem
 import akka.actor.PoisonPill
-import akka.pattern.ask
 import akka.contrib.pattern.ClusterSingletonManager
-import akka.util.Timeout
 import akka.routing.FromConfig
-import akka.actor.RootActorPath
-
 import akka.cluster.Cluster
 import akka.cluster.ClusterEvent._
 import akka.routing.ConsistentHashingRouter.ConsistentHashableEnvelope
-
-import scala.concurrent.duration._
 
 case class Get(key: String)
 case class Put(key: String, value: String)
@@ -34,7 +28,6 @@ class StorageService extends Actor {
 }
 
 class ServiceFacade extends Actor with ActorLogging {
-  import context.dispatcher
   val cluster = Cluster(context.system)
 
   var currentMaster: Option[akka.actor.Address] = None
