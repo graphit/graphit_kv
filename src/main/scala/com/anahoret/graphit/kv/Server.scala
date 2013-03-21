@@ -60,7 +60,9 @@ object Server {
 
   def createClusterManager(system: ActorSystem) {
     system.actorOf(Props(new ClusterSingletonManager(
-      singletonProps = _ => Props[StorageService], singletonName = "storageService",
+      singletonProps = ((handOverData: Option[Any]) => Props[StorageService]),
+      role = None,
+      singletonName = "storageService",
       terminationMessage = PoisonPill)), name = "singleton")
   }
 }
