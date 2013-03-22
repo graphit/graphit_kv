@@ -19,8 +19,10 @@ class StorageService extends Actor {
     context.actorOf(Props[StorageWorker].withRouter(FromConfig), name = "storageWorkerRouter")
 
   def receive = {
-    case Get(key) => workerRouter.tell(ConsistentHashableEnvelope(key, key), self)
+    case Put(key, value) => workerRouter.tell(ConsistentHashableEnvelope(Put(key, value), key), self)
+    case Get(key) => workerRouter.tell(ConsistentHashableEnvelope(Get(key), key), self)
     case result: Result  =>  sender ! result
+    case error => println("ERROR: ", error)
   }
 }
 
