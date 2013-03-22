@@ -33,6 +33,7 @@ object DefaultConfig extends MultiNodeConfig {
 
       cluster {
         auto-join = off
+        roles = [storage]
         metrics.collector-class = akka.cluster.JmxMetricsCollector
       }
 

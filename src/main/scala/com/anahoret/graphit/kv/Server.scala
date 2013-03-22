@@ -44,6 +44,7 @@ object Server {
               enabled = on
               max-nr-of-instances-per-node = 3
               allow-local-routees = off
+              use-role = storage
             }
           }
       }
@@ -63,7 +64,7 @@ object Server {
   def createClusterManager(system: ActorSystem) {
     system.actorOf(Props(new ClusterSingletonManager(
       singletonProps = ((handOverData: Option[Any]) => Props[StorageService]),
-      role = None,
+      role = Some("storage"),
       singletonName = "storageService",
       terminationMessage = PoisonPill)), name = "singleton")
   }

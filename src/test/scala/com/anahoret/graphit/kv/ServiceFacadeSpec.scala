@@ -6,7 +6,7 @@ import akka.testkit._
 import akka.actor._
 import akka.util.Timeout
 import scala.concurrent.duration._
-import akka.cluster.ClusterEvent.CurrentClusterState
+import akka.cluster.ClusterEvent.RoleLeaderChanged
 import scala.Some
 
 class ServiceFacadeSpec(_system: ActorSystem) extends TestKit(_system) with ImplicitSender
@@ -21,7 +21,7 @@ class ServiceFacadeSpec(_system: ActorSystem) extends TestKit(_system) with Impl
     "proxy received messages to the cluster master" in {
       val master = testActor
       val facade = system.actorOf(Props(new ServiceFacade(master.path.elements)))
-      facade ! CurrentClusterState(leader = Some(master.path.address))
+      facade ! RoleLeaderChanged(role = "storage", leader = Some(master.path.address))
 
       facade ! Put("k", "v")
 

@@ -12,14 +12,14 @@ class ServiceFacade(masterPath: Iterable[String]) extends Actor with ActorLoggin
 
   var currentMaster: Option[akka.actor.Address] = None
 
-  override def preStart(): Unit = cluster.subscribe(self, classOf[LeaderChanged])
+  override def preStart(): Unit = cluster.subscribe(self, classOf[RoleLeaderChanged])
   override def postStop(): Unit = cluster.unsubscribe(self)
 
   def receive = {
     case put: Put => forwardToMaster(put)
     case Get(key) => sender ! Result(key, Some("my-value"))
-    case state: CurrentClusterState => currentMaster = state.leader
-    case LeaderChanged(leader) => currentMaster = leader
+    case state: CurrentClusterState => currentMaster = state.roleLeader("storage")
+    case RoleLeaderChanged(role, leader) => if (role == "storage") currentMaster = leader
     case error => println("ERROR: ", error)
   }
 
