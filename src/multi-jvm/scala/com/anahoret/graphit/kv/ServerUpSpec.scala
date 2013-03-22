@@ -1,28 +1,24 @@
 package com.anahoret.graphit.kv
 
+import akka.cluster.{Member, MemberStatus, Cluster}
+import akka.cluster.ClusterEvent.{CurrentClusterState, MemberUp}
 import akka.remote.testkit.MultiNodeSpec
 import akka.testkit.ImplicitSender
-import akka.remote
-import akka.cluster.ClusterEvent.{CurrentClusterState, MemberUp}
-import akka.cluster.{MemberStatus, Member, Cluster}
-import akka.cluster.ClusterEvent.CurrentClusterState
-import akka.cluster.ClusterEvent.MemberUp
-import akka.util.Timeout
 import scala.concurrent.duration._
-import scala.concurrent.duration._
+import akka.actor.{Actor, Props}
+import concurrent.{Future, Await}
 import akka.pattern.ask
-import concurrent.Await
+import akka.util.Timeout
 
 class ServerUpMultiJvmNode1 extends ServerUpSpec
 class ServerUpMultiJvmNode2 extends ServerUpSpec
 
 class ServerUpSpec extends MultiNodeSpec(DefaultConfig) with STMultiNodeSpec with ImplicitSender {
-
   import DefaultConfig._
 
-  implicit val timeout = Timeout(10 seconds)
+  implicit val timeout = Timeout(5 seconds)
 
-  def initialParticipants = roles.size
+  override def initialParticipants = roles.size
 
   "Server" should {
     "be up" in {
@@ -45,8 +41,8 @@ class ServerUpSpec extends MultiNodeSpec(DefaultConfig) with STMultiNodeSpec wit
       }
 
       expectMsgAllOf(
-        MemberUp(Member(graphit1Address, MemberStatus.Up)),
-        MemberUp(Member(graphit2Address, MemberStatus.Up)))
+        MemberUp(Member(graphit1Address, MemberStatus.Up,Set.empty)),
+        MemberUp(Member(graphit2Address, MemberStatus.Up, Set.empty)))
 
       Cluster(system).unsubscribe(testActor)
 
