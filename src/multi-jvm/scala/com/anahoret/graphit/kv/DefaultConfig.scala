@@ -7,7 +7,7 @@ object DefaultConfig extends MultiNodeConfig {
   val graphit1 = role("node1")
   val graphit2 = role("node2")
 
-  commonConfig(ConfigFactory.parseString("""
+  commonConfig(debugConfig(on = false).withFallback(ConfigFactory.parseString("""
     akka {
       loglevel = ERROR
       stdout-loglevel = ERROR
@@ -25,18 +25,38 @@ object DefaultConfig extends MultiNodeConfig {
             cluster {
               enabled = on
               max-nr-of-instances-per-node = 3
-              allow-local-routees = off
+              allow-local-routees = on
+              use-role = storage
             }
           }
         }
       }
 
+      extensions = ["akka.cluster.Cluster"]
+
       cluster {
         auto-join = off
+        auto-down = off
+        jmx.enabled = off
+        gossip-interval = 200 ms
+        leader-actions-interval = 200 ms
+        unreachable-nodes-reaper-interval = 200 ms
+        periodic-tasks-initial-delay = 300 ms
+        publish-stats-interval = 0 s
+        failure-detector.heartbeat-interval = 400 ms
+
         roles = [storage]
-        metrics.collector-class = akka.cluster.JmxMetricsCollector
       }
 
-      remote.log-remote-lifecycle-events = off
-    }"""))
+      remote {
+        log-remote-lifecycle-events = off
+      }
+
+      loggers = ["akka.testkit.TestEventListener"]
+
+      test {
+        single-expect-default = 5 s
+      }
+    }
+  """)))
 }

@@ -25,26 +25,15 @@ class ServerUpSpec extends MultiNodeSpec(DefaultConfig) with STMultiNodeSpec wit
       Cluster(system).subscribe(testActor, classOf[MemberUp])
       expectMsgClass(classOf[CurrentClusterState])
 
-      val graphit1Address = node(graphit1).address
-      val graphit2Address = node(graphit2).address
-
-      Cluster(system) join graphit2Address
-
-      runOn(graphit1) {
-        Server.createActors(system)
-        testConductor.enter("gpaphit1-up")
-      }
-
-      runOn(graphit2) {
-        testConductor.enter("gpaphit1-up")
-        Server.createActors(system)
-      }
+      Cluster(system) join node(graphit1).address
 
       expectMsgAllOf(
-        MemberUp(Member(graphit1Address, MemberStatus.Up,Set.empty)),
-        MemberUp(Member(graphit2Address, MemberStatus.Up, Set.empty)))
+        MemberUp(Member(node(graphit1).address, MemberStatus.Up, Set("storage"))),
+        MemberUp(Member(node(graphit2).address, MemberStatus.Up, Set("storage"))))
 
       Cluster(system).unsubscribe(testActor)
+
+      Server.createActors(system)
 
       testConductor.enter("all-up")
     }

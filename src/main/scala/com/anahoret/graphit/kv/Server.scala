@@ -48,8 +48,7 @@ object Server {
             }
           }
       }
-      """).withFallback(ConfigFactory.load(
-    )))
+      """).withFallback(ConfigFactory.load()))
   }
 
   def createActors(system: ActorSystem) {
