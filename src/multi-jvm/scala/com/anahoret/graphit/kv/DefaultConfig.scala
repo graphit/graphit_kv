@@ -26,7 +26,7 @@ object DefaultConfig extends MultiNodeConfig {
               enabled = on
               max-nr-of-instances-per-node = 3
               allow-local-routees = on
-              use-role = storage
+              #use-role = storage
             }
           }
         }

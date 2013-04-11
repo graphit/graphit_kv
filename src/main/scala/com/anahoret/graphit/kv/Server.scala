@@ -57,7 +57,7 @@ object Server {
   }
 
   def createServiceFacade(system: ActorSystem) {
-    system.actorOf(Props(new ServiceFacade(List("user", "storageService"))), name = "serviceFacade")
+    system.actorOf(Props(new ServiceFacade(List("user", "singleton", "storageService"))), name = "serviceFacade")
   }
 
   def createClusterManager(system: ActorSystem) {
