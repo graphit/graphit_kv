@@ -37,9 +37,9 @@ class ServerUpSpec extends MultiNodeSpec(DefaultConfig) with STMultiNodeSpec wit
       Cluster(system).unsubscribe(testActor)
 
       testConductor.enter("all-up")
-//    }
-//
-//    "put and get key-value pairs" in within(15 seconds) {
+    }
+
+    "put and get key-value pairs" in within(15 seconds) {
 
       runOn(graphit1) {
         val facade = system.actorFor("user/serviceFacade")
@@ -53,7 +53,6 @@ class ServerUpSpec extends MultiNodeSpec(DefaultConfig) with STMultiNodeSpec wit
             case _ => false
           }
         }
-
       }
 
       runOn(graphit2) {
@@ -61,9 +60,9 @@ class ServerUpSpec extends MultiNodeSpec(DefaultConfig) with STMultiNodeSpec wit
 
         facade ! Put("my-key", "my-value")
 
-//        val future = facade ? Get("my-key")
-//        val result = Await.result(future, timeout.duration).asInstanceOf[Result]
-//        result should be(Result("my-key", Some("my-value")))
+        val future = facade ? Get("my-key")
+        val result = Await.result(future, timeout.duration).asInstanceOf[Result]
+        result should be(Result("my-key", Some("my-value")))
       }
 
       testConductor.enter("done-test1")

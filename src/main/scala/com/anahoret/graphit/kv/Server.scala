@@ -13,22 +13,15 @@ case class Result(key: String, value: Option[String])
 case class RequestFailed(reason: String)
 
 class StorageService(handOverData: Option[Any]) extends Actor with ActorLogging {
-  log.error("constructor STORAGE SERVICE 0000000000000000000000000000000")
-
-//  val workerRouter =
-//    context.actorOf(Props[StorageWorker].withRouter(FromConfig), name = "storageWorkerRouter")
+  val workerRouter =
+    context.actorOf(Props(new StorageWorker()).withRouter(FromConfig), name = "storageWorkerRouter")
 
   def receive = {
-//    case Put(key, value) => workerRouter.tell(ConsistentHashableEnvelope(Put(key, value), key), self)
-//    case Get(key) => workerRouter.tell(ConsistentHashableEnvelope(Get(key), key), self)
+    case Put(key, value) => log.error("StorageService PUT"); workerRouter.tell(ConsistentHashableEnvelope(Put(key, value), key), self)
+    case Get(key) => log.error("StorageService GET"); workerRouter.tell(ConsistentHashableEnvelope(Get(key), key), self)
 //    case result: Result  =>  sender ! result
-//    case error => println("ERROR: ", error)
-    case x => log.error("!!!!!!!!!!!!!!!!!!!! STORAGE SERVICE: ", x)
+    case x => log.error("storageService message: ", x)
   }
-
-  override def preStart() { log.error("preStart STORAGE SERVICE 0000000000000000000000000000000")}
-
-  override def postStop() { log.error("postStop STORAGE SERVICE 000000000000000000000000000000")}
 }
 
 object Server {

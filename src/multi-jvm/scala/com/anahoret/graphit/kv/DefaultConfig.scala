@@ -9,8 +9,8 @@ object DefaultConfig extends MultiNodeConfig {
 
   commonConfig(debugConfig(on = false).withFallback(ConfigFactory.parseString( """
     akka {
-      loglevel = DEBUG
-      stdout-loglevel = DEBUG
+      loglevel = ERROR
+      stdout-loglevel = ERROR
 
       actor {
         provider = "akka.cluster.ClusterActorRefProvider"
@@ -25,7 +25,7 @@ object DefaultConfig extends MultiNodeConfig {
             cluster {
               enabled = on
               max-nr-of-instances-per-node = 3
-              allow-local-routees = on
+              allow-local-routees = off
               #use-role = storage
             }
           }
