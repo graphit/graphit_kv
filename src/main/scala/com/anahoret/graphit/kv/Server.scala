@@ -1,29 +1,34 @@
 package com.anahoret.graphit.kv
 
 import com.typesafe.config.ConfigFactory
-import akka.actor.Actor
-import akka.actor.Props
-import akka.actor.ActorSystem
-import akka.actor.PoisonPill
+import akka.actor._
 import akka.contrib.pattern.ClusterSingletonManager
 import akka.routing.FromConfig
 import akka.routing.ConsistentHashingRouter.ConsistentHashableEnvelope
+import scala.Some
 
 case class Get(key: String)
 case class Put(key: String, value: String)
 case class Result(key: String, value: Option[String])
 case class RequestFailed(reason: String)
 
-class StorageService extends Actor {
-  val workerRouter =
-    context.actorOf(Props[StorageWorker].withRouter(FromConfig), name = "storageWorkerRouter")
+class StorageService(handOverData: Option[Any]) extends Actor with ActorLogging {
+  log.error("constructor STORAGE SERVICE 0000000000000000000000000000000")
+
+//  val workerRouter =
+//    context.actorOf(Props[StorageWorker].withRouter(FromConfig), name = "storageWorkerRouter")
 
   def receive = {
-    case Put(key, value) => workerRouter.tell(ConsistentHashableEnvelope(Put(key, value), key), self)
-    case Get(key) => workerRouter.tell(ConsistentHashableEnvelope(Get(key), key), self)
-    case result: Result  =>  sender ! result
-    case error => println("ERROR: ", error)
+//    case Put(key, value) => workerRouter.tell(ConsistentHashableEnvelope(Put(key, value), key), self)
+//    case Get(key) => workerRouter.tell(ConsistentHashableEnvelope(Get(key), key), self)
+//    case result: Result  =>  sender ! result
+//    case error => println("ERROR: ", error)
+    case x => log.error("!!!!!!!!!!!!!!!!!!!! STORAGE SERVICE: ", x)
   }
+
+  override def preStart() { log.error("preStart STORAGE SERVICE 0000000000000000000000000000000")}
+
+  override def postStop() { log.error("postStop STORAGE SERVICE 000000000000000000000000000000")}
 }
 
 object Server {
@@ -62,7 +67,7 @@ object Server {
 
   def createClusterManager(system: ActorSystem) {
     system.actorOf(Props(new ClusterSingletonManager(
-      singletonProps = handOverData => Props[StorageService],
+      singletonProps = handOverData => Props(new StorageService(handOverData)),
       role = Some("storage"),
       singletonName = "storageService",
       terminationMessage = PoisonPill)), name = "singleton")

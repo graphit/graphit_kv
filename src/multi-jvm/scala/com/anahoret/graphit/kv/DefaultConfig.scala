@@ -7,10 +7,10 @@ object DefaultConfig extends MultiNodeConfig {
   val graphit1 = role("node1")
   val graphit2 = role("node2")
 
-  commonConfig(debugConfig(on = false).withFallback(ConfigFactory.parseString("""
+  commonConfig(debugConfig(on = false).withFallback(ConfigFactory.parseString( """
     akka {
-      loglevel = ERROR
-      stdout-loglevel = ERROR
+      loglevel = DEBUG
+      stdout-loglevel = DEBUG
 
       actor {
         provider = "akka.cluster.ClusterActorRefProvider"
@@ -50,6 +50,10 @@ object DefaultConfig extends MultiNodeConfig {
 
       remote {
         log-remote-lifecycle-events = off
+        transport = "akka.remote.netty.NettyRemoteTransport"
+        netty {
+          hostname = "127.0.0.1"
+        }
       }
 
       loggers = ["akka.testkit.TestEventListener"]
@@ -58,5 +62,5 @@ object DefaultConfig extends MultiNodeConfig {
         single-expect-default = 5 s
       }
     }
-  """)))
+                                                                               """)))
 }
