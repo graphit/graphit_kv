@@ -27,9 +27,8 @@ class ServerUpSpec extends MultiNodeSpec(DefaultConfig) with STMultiNodeSpec wit
 
       Cluster(system) join node(graphit1).address
 
-      expectMsgAllOf(
-        MemberUp(Member(node(graphit1).address, MemberStatus.Up, Set("storage"))),
-        MemberUp(Member(node(graphit2).address, MemberStatus.Up, Set("storage"))))
+      receiveN(2).collect { case MemberUp(m) => m.address }.toSet should be (
+        Set(node(graphit1).address, node(graphit2).address))
 
       Server.createActors(system)
 
@@ -40,7 +39,6 @@ class ServerUpSpec extends MultiNodeSpec(DefaultConfig) with STMultiNodeSpec wit
     }
 
     "put and get key-value pairs" in within(15 seconds) {
-
       runOn(graphit1) {
         val facade = system.actorFor("user/serviceFacade")
         facade ! Put("my-key", "my-value")
