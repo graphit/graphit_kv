@@ -34,6 +34,17 @@ object DefaultConfig extends MultiNodeConfig {
 
       extensions = ["akka.cluster.Cluster"]
 
+      # transport = "akka.remote.Remoting"
+      remote.transport = "akka.remote.netty.NettyRemoteTransport"
+      remoting {
+        log-remote-lifecycle-events = off
+        transports {
+          tcp {
+            hostname = "127.0.0.1"
+          }
+        }
+      }
+
       cluster {
         auto-join = off
         auto-down = off
@@ -46,14 +57,6 @@ object DefaultConfig extends MultiNodeConfig {
         failure-detector.heartbeat-interval = 400 ms
 
         roles = [storage]
-      }
-
-      remote {
-        log-remote-lifecycle-events = off
-        transport = "akka.remote.netty.NettyRemoteTransport"
-        netty {
-          hostname = "127.0.0.1"
-        }
       }
 
       loggers = ["akka.testkit.TestEventListener"]
